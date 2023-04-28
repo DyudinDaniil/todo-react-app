@@ -1,25 +1,65 @@
-import logo from './logo.svg';
+import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+
 import './App.css';
+import TodoForm from "./components/TodoForm/TodoForm";
+import TodoList from "./components/TodoList/TodoList";
+import TodoActions from "./components/TodoActions/TodoActions";
 
 function App() {
+
+  const [todos, setTodos] = useState([]);
+
+  const addTodoHandler = (text) => {
+    const newTodo = {
+      id: uuidv4(),
+      text: text,
+      isCompleted: false
+    }
+
+    setTodos([...todos, newTodo]);
+  }
+
+  const delTodoHandler = (id) => {
+    setTodos(todos.filter(todo => todo.id !== id));
+  }
+
+  const toggleTodoHandler = (id) => {
+    setTodos(todos.map(todo => todo.id === id ? {...todo, isCompleted: !todo.isCompleted} : {...todo}))
+  }
+
+  const resetTodosHandler = () => {
+    setTodos([]);
+  }
+
+  const deleteCompletedTodosHandler = () => {
+    setTodos(todos.filter(todo => !todo.isCompleted));
+  }
+
+  const completedTodoCount = todos.filter(todo => todo.isCompleted).length;
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>
+        Todo App
+      </h1>
+
+      <TodoForm addTodo={addTodoHandler}/>
+      {!!todos.length && <TodoActions
+        resetTodos={resetTodosHandler}
+        deleteCompletedTodos={deleteCompletedTodosHandler}
+        completedTodoExist={!!completedTodoCount}
+      />}
+      <TodoList
+        todos={todos}
+        delTodo={delTodoHandler}
+        toggleTodo={toggleTodoHandler}
+      />
+
+      {!!completedTodoCount && <h2>{`You have completed ${completedTodoCount} todos`}</h2>}
     </div>
   );
+
 }
 
 export default App;
